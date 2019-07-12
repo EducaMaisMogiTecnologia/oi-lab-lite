@@ -4,6 +4,7 @@ Extra configuration files for school labs in Mogi das Cruzes, SP, Brazil (includ
 
 # System requirements
 
+* Separate 1GB partition for /boot, formatted with ext2 filesystem.
 * bindfs
 * curl
 * hxtools
