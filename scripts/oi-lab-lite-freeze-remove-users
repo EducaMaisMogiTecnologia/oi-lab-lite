@@ -1,0 +1,35 @@
+#!/bin/bash
+
+num_users=${1:-2}
+freeze_template_user="freezetemplate"
+
+for i in $(seq -w ${num_users})
+do
+    username="aluno${i}"
+
+    if getent passwd ${username} >/dev/null
+    then
+        userdel ${username}
+    fi
+
+    rm -rf /home/${username}
+done
+
+if getent passwd ${freeze_template_user} >/dev/null
+then
+    userdel ${freeze_template_user}
+fi
+
+rm -rf /home/${freeze_template_user}
+
+for g in freeze alunos
+do
+    if getent group ${g} >/dev/null
+    then
+        groupdel ${g}
+    fi
+done
+
+rm -rf /var/freeze-data
+
+sed -i -e 's/\(UMASK\t\+\)[0-9]\+/\1022/' /etc/login.defs

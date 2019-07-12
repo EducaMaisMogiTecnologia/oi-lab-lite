@@ -1,0 +1,32 @@
+#!/bin/bash
+###########################################################################
+# Wraps mount command to create the required directories before
+# mounting an OverlayFS union. Intended for use with pam_mount only.
+#
+# Usage: oi-lab-mount-wrapper <mount args>
+###########################################################################
+options=()
+user=${1}
+HOME=/home/${user}
+dirconf=${HOME}/.config/user-dirs.dirs
+shift
+
+[[ -f ${dirconf} ]] && source ${dirconf}
+
+while [[ ${1} ]]
+do
+  case "${1}" in
+    -toverlay)
+      mkdir ${!#}/{upper,work}
+      chown $(stat -c '%U:%G' ${!#}) ${!#}/{upper,work}
+      options+=("${1}")
+    ;;
+    *)
+      options+=("${1}")
+    ;;
+  esac
+
+  shift
+done
+
+exec mount "${options[@]}"

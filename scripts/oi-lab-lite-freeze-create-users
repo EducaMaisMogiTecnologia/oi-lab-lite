@@ -1,0 +1,46 @@
+#!/bin/bash
+
+num_users=${1:-2}
+freeze_template_user="freezetemplate"
+freeze_template_fullname="Modelo para Freeze"
+
+for dir in documents music pictures videos
+do
+    mkdir -p -m0777 /var/freeze-data/${dir}
+done
+
+for g in freeze alunos
+do
+    if ! getent group ${g} >/dev/null
+    then
+        groupadd ${g}
+    fi
+done
+
+if ! getent passwd ${freeze_template_user} >/dev/null
+then
+    useradd --create-home --user-group --shell /bin/bash --comment "${freeze_template_fullname}" --password freeze ${freeze_template_user}
+fi
+
+su ${freeze_template_user} -c "env LANG=pt_BR.UTF-8 xdg-user-dirs-update"
+su ${freeze_template_user} -c "[ -d ~/.config/autostart ] || mkdir ~/.config/autostart || exit 1"
+su ${freeze_template_user} -c "echo -e '[Desktop Entry]\nType=Application\nName=Autostart commands for freeze sessions\nExec=oi-lab-lite-freeze-session-auto' > ~/.config/autostart/oi-lab-lite-freeze-session-auto.desktop"
+su ${freeze_template_user} -c 'for dir in DOCUMENTS PICTURES MUSIC VIDEOS; do x=$(xdg-user-dir ${dir}); rmdir ${x}; ln -s /var/freeze-data/${dir,,} ${x}; done'
+
+for i in blueman light-locker print-applet update-notifier xfce4-power-manager
+do
+    su ${freeze_template_user} -c "echo -e '[Desktop Entry]\nHidden=true' > ~/.config/autostart/${i}.desktop"
+done
+
+for i in $(seq -w ${num_users})
+do
+    username="aluno${i}"
+    fullname="Aluno #${i}"
+    
+    if ! getent passwd ${username} >/dev/null
+    then
+        useradd --create-home --user-group --shell /bin/bash --groups alunos,freeze --comment "${fullname}" --password ${username} ${username}
+    fi
+done
+
+sed -i -e 's/\(UMASK\t\+\)[0-9]\+/\1002/' /etc/login.defs

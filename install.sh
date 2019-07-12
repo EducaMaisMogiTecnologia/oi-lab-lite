@@ -60,7 +60,26 @@ install_userful_rescue () {
     install -m 755 grub/42_userful-rescue /etc/grub.d
 }
 
+install_freeze () {
+    pam_file=pam_mount.conf.xml
+    pam_dir=/etc/security
+
+    install -m 755 scripts/oi-lab-lite-freeze-* /usr/local/bin
+
+    if [[ -f ${pam_dir}/${pam_file} ]]
+    then
+        mv ${pam_dir}/${pam_file}{,.bkp}
+    elif [[ ! -d ${pam_dir} ]]
+        install -d ${pam_dir}
+    fi
+
+    install -m 644 pam/${pam_file} ${pam_dir}
+    install -d ${pam_dir}/limits.d
+    install -m 644 pam/limits.d/* ${pam_dir}/limits.d
+}
+
 install_udev
 install_xorg
+install_freeze
 install_userful_rescue
 [[ -x /usr/bin/lightdm ]] && install_lightdm
