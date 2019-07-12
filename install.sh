@@ -48,7 +48,7 @@ install_userful_rescue () {
         ) || exit 1
     fi
 
-    if [[ -x /usr/sbin/update-grub ]]
+    if [[ -x $(which update-grub) ]]
     then
         update-grub
     else
@@ -83,4 +83,4 @@ install_udev
 install_xorg
 install_freeze
 install_userful_rescue
-[[ -x /usr/bin/lightdm ]] && install_lightdm
+[[ -x $(which lightdm) ]] && install_lightdm
