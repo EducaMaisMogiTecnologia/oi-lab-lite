@@ -12,3 +12,9 @@ Extra configuration files for school labs in Mogi das Cruzes, SP, Brazil (includ
 * pam_umask (Debian package: libpam-umask)
 * xdg-user-dirs-gtk
 * xf86-video-siliconmotion (Debian package: xserver-xorg-video-siliconmotion)
+
+# Installation steps
+
+1. Clone this repository
+2. Run `install.sh`
+3. Run `oi-lab-lite-freeze-create-users`
