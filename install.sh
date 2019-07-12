@@ -48,7 +48,7 @@ install_userful_rescue () {
         ) || exit 1
     fi
 
-    if [[ -x /bin/update-grub ]]
+    if [[ -x /usr/sbin/update-grub ]]
     then
         update-grub
     else
