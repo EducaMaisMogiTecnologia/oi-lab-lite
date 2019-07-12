@@ -70,6 +70,7 @@ install_freeze () {
     then
         mv ${pam_dir}/${pam_file}{,.bkp}
     elif [[ ! -d ${pam_dir} ]]
+    then
         install -d ${pam_dir}
     fi
 
