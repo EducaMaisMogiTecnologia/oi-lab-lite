@@ -1,0 +1,47 @@
+#!/bin/bash
+###########################################################################
+# Updates BusID entries in passed xorg.conf files according to a given
+# pattern to be searched in 'lspci' output.
+#
+# Usage: update-xorg-conf XORGCONF_1 [XORGCONF_2 ...]
+#
+# Copyright (C) 2016 Prefeitura de Mogi das Cruzes, SP, Brazil
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# On Debian GNU/Linux systems, the complete text of the GNU General
+# Public License can be found in `/usr/share/common-licenses/GPL'.
+###########################################################################
+index=1
+pattern="Silicon.Motion"
+
+while read -r line
+do
+    address=$(echo "${line}" | awk '{ sub(/\./, ":", $1) } { print $1 }')
+    echo VIDEO_ADDRESS_${index} = ${address}
+
+    for xorgconf in "${@}"
+    do
+        awk -v n=${index} -v address=${address} \
+            '$1 == "BusID" {
+                if (++count == n) {
+                    sub(/[0-9]+:[0-9]+:[0-9]+/, address, $0)
+                }
+             }
+             { print }' ${xorgconf} > ${xorgconf}.tmp && mv ${xorgconf}.tmp ${xorgconf}
+    done
+
+    index=$(( index + 1 ))
+done < <(lspci | grep "${pattern}")
+
